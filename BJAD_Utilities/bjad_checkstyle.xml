@@ -36,7 +36,9 @@
 		<module name="SimplifyBooleanReturn" />
 		<module name="StringLiteralEquality" />
 		<module name="ReturnCount" />
-		<module name="MultipleStringLiterals" />
+		<module name="MultipleStringLiterals">
+		    <property name="allowedDuplicates" value="5"/>
+		</module>
 		<module name="OneStatementPerLine" />
 		<module name="OverloadMethodsDeclarationOrder" />
 		<module name="AvoidStarImport">

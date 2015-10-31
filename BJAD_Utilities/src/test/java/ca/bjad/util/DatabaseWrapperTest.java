@@ -3,8 +3,10 @@ package ca.bjad.util;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.BeforeClass;
@@ -115,7 +117,83 @@ public class DatabaseWrapperTest
          assertEquals("At least two Person objects returned", true, results.size() >= 2);
       }
    }
-
+   
+   @Test(expected=SQLException.class)
+   public void testBadQueryWithMapper() throws Exception
+   {
+      try (DatabaseWrapper db = new DatabaseWrapper("SELECT * FROM person"))
+      {
+         db.executeQuery(new ResultSetMapper<Person>()
+            {
+               @Override
+               public Person processRow(ResultSet rs) throws SQLException
+               {
+                  rs.getString("bad_column");
+                  return new Person();
+               }
+            });
+      }
+   }
+   
+   @Test(expected=SQLException.class)
+   public void testBadQueryWithResultProcessor() throws Exception
+   {
+      try (DatabaseWrapper db = new DatabaseWrapper("SELECT * FROM person"))
+      {
+         db.executeQuery(new ResultSetProcessor()
+            {               
+               @Override
+               public void processRow(ResultSet rs) throws SQLException
+               {
+                  rs.getString("bad_column");
+               }
+            });
+      }
+   }
+   
+   /** 
+    * this test method kinda sucks as sql lite does not support
+    * all datatypes, but the code will still execute for coverage
+    * 
+    * its a hack... big deal.
+    */
+   @Test
+   public void testSetArguments() throws Exception
+   {
+      String insertCommand = "INSERT INTO Person VALUES (?, ?)";
+      try (DatabaseWrapper db = new DatabaseWrapper(
+            insertCommand, 103, 1100L))
+      {
+          db.executeNonQuery();
+      }
+      catch (Exception ex) { fail("Long values should be allowed."); }
+      
+      try (DatabaseWrapper db = new DatabaseWrapper(
+            insertCommand, 104, BigDecimal.ZERO))
+      {
+          db.executeNonQuery();
+      }
+      catch (Exception ex) { fail("BigDecimal values should be allowed."); }
+      try (DatabaseWrapper db = new DatabaseWrapper(
+            insertCommand, 105, true))
+      {
+          db.executeNonQuery();
+      }
+      catch (Exception ex) {fail("Boolean values should be allowed.");}
+      try (DatabaseWrapper db = new DatabaseWrapper(
+            insertCommand, 106, new Date()))
+      {
+          db.executeNonQuery();
+      }
+      catch (Exception ex) {fail("Date values should be allowed.");}
+      try (DatabaseWrapper db = new DatabaseWrapper(
+            insertCommand, new StringBuilder(), new Date()))
+      {
+          db.executeNonQuery();
+          fail("StringBuilder is not a valid argument type.");
+      }
+      catch (Exception ex) {}
+   }
 }
 
 @SuppressWarnings("javadoc")

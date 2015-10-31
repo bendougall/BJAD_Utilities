@@ -17,8 +17,6 @@ import java.util.List;
  */
 public class DatabaseWrapper implements AutoCloseable
 {
-   private static final String EXCEPTION_MESSAGE_FMTSTR = 
-         "Failed to execute %s, see full stacktrace for details";
    /**
     * Used to set the connection string for the wrapper objects to use
     * globally, so users do not have to apply the connection string
@@ -89,7 +87,7 @@ public class DatabaseWrapper implements AutoCloseable
       dbConnection = DriverManager.getConnection(this.connectionString);
       statement = dbConnection.prepareStatement(this.sqlString);
 
-      if (arguments != null && arguments.length > 0)
+      if (arguments.length > 0)
       {
          setArguments(arguments);
       }
@@ -126,19 +124,14 @@ public class DatabaseWrapper implements AutoCloseable
    public int executeQuery(ResultSetProcessor processor) throws SQLException
    {
       int totalRows = 0;
-      try
+      
+      resultSet = statement.executeQuery();
+      while (resultSet.next())
       {
-         resultSet = statement.executeQuery();
-         while (resultSet.next())
-         {
-            totalRows++;
-            processor.processRow(resultSet);
-         }
+         totalRows++;
+         processor.processRow(resultSet);
       }
-      catch (SQLException ex)
-      {
-         throw new SQLException(String.format(EXCEPTION_MESSAGE_FMTSTR, statement.toString()), ex);
-      }
+      
       return totalRows;
    }
    
@@ -162,18 +155,13 @@ public class DatabaseWrapper implements AutoCloseable
    public <T> List<T> executeQuery(ResultSetMapper<T> mapper) throws SQLException
    {
       ArrayList<T> results = new ArrayList<>();
-      try
+     
+      resultSet = statement.executeQuery();
+      while (resultSet.next())
       {
-         resultSet = statement.executeQuery();
-         while (resultSet.next())
-         {
-            results.add(mapper.processRow(resultSet));
-         }
+         results.add(mapper.processRow(resultSet));
       }
-      catch (SQLException ex)
-      {
-         throw new SQLException(String.format(EXCEPTION_MESSAGE_FMTSTR, statement.toString()), ex);
-      }
+    
       return results;
    }
 
@@ -189,26 +177,19 @@ public class DatabaseWrapper implements AutoCloseable
     */
    public int executeNonQuery() throws SQLException
    {
-      try
+      if (!batchMode)
       {
-         if (!batchMode)
-         {
-            return statement.executeUpdate();
-         }
+         return statement.executeUpdate();
+      }
 
-         int resultCount = 0;
-         statement.addBatch();
-         int[] results = statement.executeBatch();
-         for (int i : results)
-         {
-            resultCount += i;
-         }
-         return resultCount;
-      }
-      catch (SQLException ex)
+      int resultCount = 0;
+      statement.addBatch();
+      int[] results = statement.executeBatch();
+      for (int i : results)
       {
-         throw new SQLException(String.format(EXCEPTION_MESSAGE_FMTSTR, statement.toString()), ex);
+         resultCount += i;
       }
+      return resultCount;     
    }
 
 
@@ -219,18 +200,13 @@ public class DatabaseWrapper implements AutoCloseable
     */
    public void close() throws Exception
    {
-      if (resultSet != null)
+      if (resultSet != null) 
       {
-         resultSet.close();
+         try {resultSet.close(); } catch (Exception ex) { ; }
       }
-      if (statement != null)
-      {
-         statement.close();
-      }
-      if (dbConnection != null)
-      {
-         dbConnection.close();
-      }
+      
+      try {statement.close(); } catch (Exception ex) { ; }     
+      try {dbConnection.close(); } catch (Exception ex) { ; }
    }
 
    /**
@@ -265,6 +241,10 @@ public class DatabaseWrapper implements AutoCloseable
          else if (values[index] instanceof java.util.Date)
          {
             statement.setDate(index + 1, new java.sql.Date(((java.util.Date) values[index]).getTime()));
+         }
+         else if (values[index] instanceof Boolean)
+         {
+            statement.setBoolean(index + 1, (Boolean) values[index]);
          }
          else
          {
