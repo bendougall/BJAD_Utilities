@@ -55,46 +55,16 @@ public class DelimitedStringParser
    }
    
    /**
-    * Returns a section of the string as is, with
-    * or without the quotes that may have surrounded
-    * the section.
+    * Returns a section of the string as is.
     * 
     * @param index
     *    The index of the section to retrieve.
     * @return
     *    The string found at the index passed.
     */
-   public String asIs(int index)
+   public String section(int index)
    {
       return sections.get(index);
-   }
-   
-   /**
-    * Returns the string at the section, with quotes 
-    * removed if they were present.
-    * 
-    * @param index
-    *    The index of the sections to retrieve.
-    * @return
-    *    The string found, with surrounding quotes 
-    *    removed.
-    */
-   public String unquoted(int index)
-   {
-      String s = sections.get(index);
-      int startPos = 0;
-      if (s.startsWith("\""))
-      {
-         startPos = 1;
-      }
-      if (s.endsWith("\""))
-      {
-         return s.substring(startPos, s.length() - 2);
-      }
-      else
-      {
-         return s.substring(startPos);
-      }
    }
    
    /**
