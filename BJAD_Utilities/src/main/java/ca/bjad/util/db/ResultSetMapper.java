@@ -22,7 +22,8 @@ public interface ResultSetMapper<T>
     * the object which will be added to the 
     * list returned by the database wrapper. 
     * 
-    * <br /><br /><i>Note: you should only be using the result
+    * <br><br>
+    * <i>Note: you should only be using the result
     * set's getXXX(x) methods to get data, as the database 
     * job will increment the result set row by row. </i>
     * 

@@ -152,6 +152,8 @@ public class DatabaseWrapper implements AutoCloseable
     *    The result set mapper that will create objects 
     *    based on the row the result set passed to the mapper
     *    represents.
+    * @param <T>
+    *    The type of object the row mapper will create.
     * @return
     *    Number of rows in the query.
     * @throws SQLException
