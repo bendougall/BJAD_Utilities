@@ -1,0 +1,1 @@
+This is a {{text}}. You can also use a custom format, like tpl:so

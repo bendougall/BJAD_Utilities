@@ -199,14 +199,15 @@ public class DatabaseWrapper implements AutoCloseable
     * try-with-resources statement.
     */
    public void close() throws Exception
-   {
+   {      
+      try {dbConnection.close(); } catch (Exception ex) { ; }
+      try {statement.close(); } catch (Exception ex) { ; }  
+      
       if (resultSet != null) 
       {
          try {resultSet.close(); } catch (Exception ex) { ; }
       }
-      
-      try {statement.close(); } catch (Exception ex) { ; }     
-      try {dbConnection.close(); } catch (Exception ex) { ; }
+       
    }
 
    /**

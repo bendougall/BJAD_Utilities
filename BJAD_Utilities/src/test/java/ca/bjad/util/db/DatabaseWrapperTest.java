@@ -1,4 +1,4 @@
-package ca.bjad.util;
+package ca.bjad.util.db;
 
 import static org.junit.Assert.*;
 
@@ -27,7 +27,8 @@ import ca.bjad.util.db.ResultSetProcessor;
 @SuppressWarnings("javadoc")
 public class DatabaseWrapperTest
 {
-   private static String connectionString = "jdbc:sqlite:sample.sqlLite";
+   private static String FILE_NAME = System.getenv("TEMP") + "\\bjadUtilTest.sqlLite";
+   private static String connectionString = "jdbc:sqlite:" + FILE_NAME;
    
    @BeforeClass
    public static void setupDB() throws Exception
@@ -55,7 +56,7 @@ public class DatabaseWrapperTest
    @AfterClass
    public static void eraseDB() throws Exception
    {
-      new File("sample.sqlLite").delete();
+      new File(FILE_NAME).delete();
    }
    
    @Test
