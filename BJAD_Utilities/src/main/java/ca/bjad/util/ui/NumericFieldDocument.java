@@ -1,11 +1,11 @@
 package ca.bjad.util.ui;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
-
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
+
+import ca.bjad.util.ui.listener.InvalidEntryListener.InvalidatedReason;
 
 /**
  * Numeric value document that will allow the integer 
@@ -18,52 +18,86 @@ import javax.swing.text.PlainDocument;
 class NumericFieldDocument extends PlainDocument
 {
    private static final long serialVersionUID = -3409138035297440726L;
-
-   private BigDecimal minimumValue;
-   private BigDecimal maximumValue;
-   private RestrictiveTextField owningField;
    
+   private BigDecimal maximumValue;
+   private AbstractRestrictiveTextField owningField;
+
+   private boolean allowNegatives;
    private boolean allowDecimals;
    
    /**
     * Constructor, lays out the parameters for the document's filters.
     * 
-    * @param minimumValue
-    *    The minimum value allowed within the field.
     * @param maximumValue
     *    The maximum value allowed within the field.
     * @param owningField
     *    The field that owns this document implementation.
     * @param allowDecimals
     *    Flag to allow or disallow decimal values in the field.
+    * @param allowNegatives
+    *    Flag to allow or disallow negative values in the field.
     */
-   public NumericFieldDocument(BigDecimal minimumValue, BigDecimal maximumValue, RestrictiveTextField owningField, boolean allowDecimals)
+   public NumericFieldDocument(BigDecimal maximumValue, AbstractRestrictiveTextField owningField, boolean allowDecimals, boolean allowNegatives)
    {
       super();
-      this.minimumValue = minimumValue;
       this.maximumValue = maximumValue;
       this.owningField = owningField;
       this.allowDecimals = allowDecimals;
+      this.allowNegatives = allowNegatives;
    }
 
-   /**
-    * @param minimumValue 
-    *   The minimumValue to set within the NumericFieldDocument instance
-    */
-   public void setMinimumValue(BigDecimal minimumValue)
+   private BigDecimal checkForDefaultValues(String newTextValue)
    {
-      this.minimumValue = minimumValue;
+      BigDecimal val = null;
+      // If the negative sign is the only text in the field, 
+      // treat it as minus one.
+      if ("-".equals(newTextValue))         
+      {
+         if (!allowNegatives)
+         {
+            owningField.fireInvalidEntryListeners(InvalidatedReason.NEGATIVE_VALUE, newTextValue);
+         }
+         val = new BigDecimal("-1");
+      }
+      // if a decimal point is the only thing in the 
+      // text field, treat the value as .1
+      else if (newTextValue.endsWith("."))
+      {
+         if (allowDecimals)
+         {
+            val = new BigDecimal(newTextValue + "0000000000001");
+         }
+         else
+         {
+            owningField.fireInvalidEntryListeners(InvalidatedReason.NON_INTEGER, newTextValue);
+         }
+      }
+      
+      return val;
    }
-
-   /**
-    * @param maximumValue 
-    *   The maximumValue to set within the NumericFieldDocument instance
-    */
-   public void setMaximumValue(BigDecimal maximumValue)
+   
+   private BigDecimal verifyRangeInformation(BigDecimal valToCheck)
    {
-      this.maximumValue = maximumValue;
+      BigDecimal retValue = valToCheck;
+          
+      if (valToCheck != null)
+      {
+         if (!allowNegatives && BigDecimal.ZERO.compareTo(valToCheck) == 1)
+         {
+            retValue = null;
+            owningField.fireInvalidEntryListeners(InvalidatedReason.NEGATIVE_VALUE, valToCheck.toPlainString());
+         }
+         
+         if (maximumValue != null && maximumValue.compareTo(valToCheck) == -1)
+         {
+            retValue = null;
+            owningField.fireInvalidEntryListeners(InvalidatedReason.MAXIMUM_VALUE_PASSED, valToCheck.toPlainString());
+         }
+      }
+      
+      return retValue;
    }
-
+   
    /**
     * Validates the content for the field's potential 
     * new value.
@@ -76,60 +110,31 @@ class NumericFieldDocument extends PlainDocument
     */
    public BigDecimal verifyContents(String newTextValue)
    {
-      BigDecimal val = null;
-      try
-      {  
-         // If the negative sign is the only text in the field, 
-         // treat it as minus one.
-         if (newTextValue.equals("-"))
+      BigDecimal val = checkForDefaultValues(newTextValue);
+      if (val == null)
+      {
+         try
          {
-            val = new BigDecimal("-1");
+            val = new BigDecimal(newTextValue);
          }
-         // if a decimal point is the only thing in the 
-         // text field, treat the value as .1
-         else if (newTextValue.equals("."))
+         catch (Exception ex)
          {
-            if (allowDecimals)
-            {
-               val = new BigDecimal(".1");
-            }
-            else 
-            {
-               // No decimals allowed, not continuing.
-               return null;
-            }
+            owningField.fireInvalidEntryListeners(InvalidatedReason.NON_NUMERIC, newTextValue);
          }
-         // otherwise, lets see if we can convert the new text 
-         // value to a BigInteger object.
-         else 
+         if (!allowDecimals) 
          {
-            if (allowDecimals)
+            try
             {
-               val = new BigDecimal(newTextValue);
+               val.toBigIntegerExact();
             }
-            else 
+            catch (Exception ex)
             {
-               val = new BigDecimal(new BigInteger(newTextValue));
+               owningField.fireInvalidEntryListeners(InvalidatedReason.NON_INTEGER, newTextValue);
             }
          }
       }
-      catch (Exception ex)
-      {
-         // not a valid numeric value.
-         return null;
-      }
       
-      if (minimumValue != null && minimumValue.compareTo(val) == 1)
-      {
-         return null;
-      }
-      
-      if (maximumValue != null && maximumValue.compareTo(val) == -1)
-      {
-         return null;
-      }
-      
-      return val;
+      return verifyRangeInformation(val);
    }
    
    @Override

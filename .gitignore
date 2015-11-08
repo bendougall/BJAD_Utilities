@@ -16,6 +16,7 @@ target/
 .metadata/
 .settings/
 RemoteSystemsTempFiles/
+.recommenders/
 
 .project
 .classpath
