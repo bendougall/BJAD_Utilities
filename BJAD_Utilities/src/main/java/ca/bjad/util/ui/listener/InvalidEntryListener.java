@@ -32,7 +32,9 @@ public interface InvalidEntryListener extends EventListener
       /** Value entered surpasses the defined maximum limit of the field */
       MAXIMUM_VALUE_PASSED,
       /** Characters that are marked invalid */
-      INVALID_CHARACTER
+      INVALID_CHARACTER,
+      /** Too many decimal places in the field */
+      TOO_MANY_DECIMALS
    }
    
    /**

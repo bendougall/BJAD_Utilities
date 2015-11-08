@@ -3,6 +3,7 @@ package ca.bjad.util.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -69,8 +70,8 @@ public class NumericFieldTestApp extends JFrame implements Runnable, InvalidEntr
       pane.add(new JLabel("No Neg, Max: 100.5"));
       pane.add(NumericTextField.newDecimalField(false, 100.5));
       
-      pane.add(new JLabel(""));
-      pane.add(new JLabel(""));
+      pane.add(new JLabel("Money"));
+      pane.add(NumericTextField.newMoneyField());
       
       applyListenersForFieldsInPanel(pane);
       return pane;
@@ -84,6 +85,7 @@ public class NumericFieldTestApp extends JFrame implements Runnable, InvalidEntr
       statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
       
       statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
+      statusLabel.setFont(statusLabel.getFont().deriveFont(Font.PLAIN));
       statusPanel.add(statusLabel);
       
       return statusPanel;
@@ -113,11 +115,14 @@ public class NumericFieldTestApp extends JFrame implements Runnable, InvalidEntr
       super("Numeric Text Field test application");      
       this.setDefaultCloseOperation(EXIT_ON_CLOSE);
    
-      JPanel contentPane = new JPanel(new BorderLayout(5, 2), true);
-      contentPane.add(createIntegerTextFieldPanel(), BorderLayout.WEST);
-      contentPane.add(createDecimalTextFieldPanel(), BorderLayout.EAST);
-      contentPane.add(createStatusBarPanel(), BorderLayout.SOUTH);
-      contentPane.setBorder(new EmptyBorder(2, 5, 1, 5));
+      JPanel fieldSplitPane = new JPanel(new GridLayout(1, 2, 5, 0), true);
+      fieldSplitPane.add(createIntegerTextFieldPanel());
+      fieldSplitPane.add(createDecimalTextFieldPanel());
+      fieldSplitPane.setBorder(new EmptyBorder(2, 5, 1, 5));
+      
+      JPanel contentPane = new JPanel(new BorderLayout(0, 3), true);
+      contentPane.add(fieldSplitPane, BorderLayout.CENTER);
+      contentPane.add(createStatusBarPanel(), BorderLayout.SOUTH);      
       
       this.setContentPane(contentPane);
       this.pack();      
@@ -142,7 +147,7 @@ public class NumericFieldTestApp extends JFrame implements Runnable, InvalidEntr
       field.setBackground(Color.YELLOW);
       field.setForeground(Color.BLACK);
       
-      String labelText = String.format("Invalid entry attempted within the highlighted field. Reason: %s, Attempted Entry: %s",
+      String labelText = String.format("Invalid entry within the highlighted field. Reason: %s, Attempted Entry: %s",
             reason.name(),
             input);
       

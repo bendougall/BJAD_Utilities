@@ -44,6 +44,19 @@ public class NumericTextField extends AbstractRestrictiveTextField
       setDocument(numDoc);
    }
    
+   /** 
+    * Applies new number of decimal place limit, or removes
+    * if the value is < 0 
+    * 
+    * @param decimalPlaces
+    *    Maximum number of decimal places, or remove the 
+    *    limit with a value < 1.
+    */   
+   public void setMaximumDecimalPlaces(int decimalPlaces)
+   {
+      numDoc.setNumberOfDecimalPlaces(decimalPlaces);
+   }
+   
    /**
     * Sets the value for the field to display
     * 
@@ -208,6 +221,18 @@ public class NumericTextField extends AbstractRestrictiveTextField
       return newDecimalField(false, null);
    }
    
+   public static NumericTextField newMoneyField()
+   {
+      return newMoneyField(null);
+   }
+   
+   public static NumericTextField newMoneyField(Number maxmiumValue)
+   {
+      NumericTextField field = newDecimalField(false, maxmiumValue);
+      field.setMaximumDecimalPlaces(2);
+      
+      return field;
+   }
    /**
     * Creates a new decimal text field which will be customized
     * to either allow or disallow negative values and set a 

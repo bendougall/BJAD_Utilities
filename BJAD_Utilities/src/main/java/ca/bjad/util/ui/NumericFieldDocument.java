@@ -25,6 +25,21 @@ class NumericFieldDocument extends PlainDocument
    private boolean allowNegatives;
    private boolean allowDecimals;
    
+   private int numberOfDecimalPlaces = -1;
+   
+   /** 
+    * Applies new number of decimal place limit, or removes
+    * if the value is < 0 
+    * 
+    * @param decimalPlaces
+    *    Maximum number of decimal places, or remove the 
+    *    limit with a value < 1.
+    */
+   public void setNumberOfDecimalPlaces(int decimalPlaces)
+   {
+      this.numberOfDecimalPlaces = decimalPlaces;
+   }
+   
    /**
     * Constructor, lays out the parameters for the document's filters.
     * 
@@ -64,8 +79,8 @@ class NumericFieldDocument extends PlainDocument
       else if (newTextValue.endsWith("."))
       {
          if (allowDecimals)
-         {
-            val = new BigDecimal(newTextValue + "0000000000001");
+         {            
+            val = new BigDecimal(newTextValue + "1");
          }
          else
          {
@@ -92,6 +107,23 @@ class NumericFieldDocument extends PlainDocument
          {
             retValue = null;
             owningField.fireInvalidEntryListeners(InvalidatedReason.MAXIMUM_VALUE_PASSED, valToCheck.toPlainString());
+         }
+         
+         if (allowDecimals && numberOfDecimalPlaces > 0)
+         {
+            String str = valToCheck.toPlainString();            
+            int decimalPosition = str.indexOf('.') + 1;
+            if (decimalPosition != 0 && !str.endsWith("."))
+            {
+               String decimalPortion = str.substring(decimalPosition);
+               System.out.println(decimalPortion);
+               
+               if (decimalPortion.length() > numberOfDecimalPlaces)
+               {
+                  retValue = null;
+                  owningField.fireInvalidEntryListeners(InvalidatedReason.TOO_MANY_DECIMALS, str);
+               }
+            }
          }
       }
       
