@@ -12,3 +12,10 @@
 hs_err_pid*
 
 target/
+
+.metadata/
+.settings/
+RemoteSystemsTempFiles/
+
+.project
+.classpath
