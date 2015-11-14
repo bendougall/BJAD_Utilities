@@ -221,14 +221,30 @@ public class NumericTextField extends AbstractRestrictiveTextField
       return newDecimalField(false, null);
    }
    
+   /**
+    * Creates a numeric decimal field that has no upper limit, and 
+    * a decimal place limit of 2.
+    * 
+    * @return
+    *    The constructed and configured numeric text field.
+    */
    public static NumericTextField newMoneyField()
    {
       return newMoneyField(null);
    }
    
-   public static NumericTextField newMoneyField(Number maxmiumValue)
+   /**
+    * Creates a numeric decimal field with an upper limit, and 
+    * a decimal place limit of 2.
+    * 
+    * @param maximumValue
+    *    The upper limit for the text field.
+    * @return
+    *    The constructed and configured numeric text field.
+    */
+   public static NumericTextField newMoneyField(Number maximumValue)
    {
-      NumericTextField field = newDecimalField(false, maxmiumValue);
+      NumericTextField field = newDecimalField(false, maximumValue);
       field.setMaximumDecimalPlaces(2);
       
       return field;
