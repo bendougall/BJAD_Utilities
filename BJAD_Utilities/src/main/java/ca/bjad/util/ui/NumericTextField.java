@@ -46,11 +46,11 @@ public class NumericTextField extends AbstractRestrictiveTextField
    
    /** 
     * Applies new number of decimal place limit, or removes
-    * if the value is < 0 
+    * if the value is less than 0 
     * 
     * @param decimalPlaces
     *    Maximum number of decimal places, or remove the 
-    *    limit with a value < 1.
+    *    limit with a value less than 1.
     */   
    public void setMaximumDecimalPlaces(int decimalPlaces)
    {

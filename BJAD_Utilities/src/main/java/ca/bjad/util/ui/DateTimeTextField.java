@@ -34,14 +34,58 @@ public class DateTimeTextField extends AbstractRestrictiveTextField implements K
       };
 
    private Date                         selectedDate        = new Date();
-
-   private void updateSelectedDate(Date newSelectedDate)
+   
+   /**
+    * Creates the field, setting the default 
+    * value for the field.
+    *
+    * @param defaultValue
+    *    The default date to show in the field.
+    */
+   public DateTimeTextField(Date defaultValue)
    {
-      this.selectedDate = newSelectedDate;
-      int selectedIndex = findFocusedSection(this.getCaretPosition());
+      this.selectedDate = defaultValue;
+      
+      Color c = this.getBackground();
+      
+      this.addKeyListener(this);
+      this.setBounds(10, 32, 200, 26);
+      this.setEditable(false);
+      this.setBackground(c);
+      this.addFocusListener(this);
+      this.setSelectionColor(Color.yellow);
+      this.setSelectedTextColor(Color.black);
       this.setText(FIELD_DATE_FORMAT.format(this.selectedDate));
-      setSelectedTextForPoint(DATE_SECTION_RANGES[selectedIndex]);
    }
+   
+   @Override
+   public void keyPressed(KeyEvent keyEvent)
+   {
+     switch (keyEvent.getKeyCode())
+     {
+     case KeyEvent.VK_LEFT: 
+     case KeyEvent.VK_RIGHT: 
+       shiftFocus(keyEvent.getKeyCode(), this.getCaretPosition());
+       break;
+     case KeyEvent.VK_UP: 
+     case KeyEvent.VK_DOWN: 
+       updateSelectedDate(keyEvent.getKeyCode(), this.getCaretPosition());
+       break;
+     }
+   }
+   
+   @Override
+   public void focusGained(FocusEvent focusEvent)
+   {
+     setSelectedTextForPoint(DATE_SECTION_RANGES[findFocusedSection(this.getCaretPosition())]);
+   }
+   
+   public void focusLost(FocusEvent arg0) {}
+   
+   public void keyReleased(KeyEvent arg0) {}
+   
+   public void keyTyped(KeyEvent arg0) {}
+   
 
    private void setSelectedTextForPoint(final Point selectedRange)
    {
@@ -98,6 +142,14 @@ public class DateTimeTextField extends AbstractRestrictiveTextField implements K
       }
    }
 
+   private void updateSelectedDate(Date newSelectedDate)
+   {
+      this.selectedDate = newSelectedDate;
+      int selectedIndex = findFocusedSection(this.getCaretPosition());
+      this.setText(FIELD_DATE_FORMAT.format(this.selectedDate));
+      setSelectedTextForPoint(DATE_SECTION_RANGES[selectedIndex]);
+   }
+   
    private void updateSelectedDate(int keyCode, int caretPosition)
    {
       int direction = keyCode == KeyEvent.VK_UP ? 1 : -1;
@@ -127,55 +179,4 @@ public class DateTimeTextField extends AbstractRestrictiveTextField implements K
       }
       updateSelectedDate(c.getTime());
    }
-   
-   /**
-    * Creates the field, setting the default 
-    * value for the field.
-    *
-    * @param defaultValue
-    *    The default date to show in the field.
-    */
-   public DateTimeTextField(Date defaultValue)
-   {
-      this.selectedDate = defaultValue;
-      
-      Color c = this.getBackground();
-      
-      this.addKeyListener(this);
-      this.setBounds(10, 32, 200, 26);
-      this.setEditable(false);
-      this.setBackground(c);
-      this.addFocusListener(this);
-      this.setSelectionColor(Color.yellow);
-      this.setSelectedTextColor(Color.black);
-      this.setText(FIELD_DATE_FORMAT.format(this.selectedDate));
-   }
-   
-   @Override
-   public void keyPressed(KeyEvent keyEvent)
-   {
-     switch (keyEvent.getKeyCode())
-     {
-     case KeyEvent.VK_LEFT: 
-     case KeyEvent.VK_RIGHT: 
-       shiftFocus(keyEvent.getKeyCode(), this.getCaretPosition());
-       break;
-     case KeyEvent.VK_UP: 
-     case KeyEvent.VK_DOWN: 
-       updateSelectedDate(keyEvent.getKeyCode(), this.getCaretPosition());
-       break;
-     }
-   }
-   
-   @Override
-   public void focusGained(FocusEvent focusEvent)
-   {
-     setSelectedTextForPoint(DATE_SECTION_RANGES[findFocusedSection(this.getCaretPosition())]);
-   }
-   
-   public void focusLost(FocusEvent arg0) {}
-   
-   public void keyReleased(KeyEvent arg0) {}
-   
-   public void keyTyped(KeyEvent arg0) {}
 }

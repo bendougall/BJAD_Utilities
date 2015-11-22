@@ -211,6 +211,34 @@ public class DatabaseWrapper implements AutoCloseable
    }
 
    /**
+    * Resets the SQL command to execute within the wrapper, so the 
+    * connection can remain open but a new statement can be executed
+    * 
+    * @param sqlString
+    *    The SQL statement to execute.
+    * @param arguments
+    *    The parameters for the sql statement.
+    * @throws java.sql.SQLException
+    *    Any SQL Exceptions will be thrown back to 
+    *    the calling function. 
+    */
+   public void newCommand(String sqlString, Object... arguments) throws SQLException
+   {
+      if (resultSet != null)
+      {
+         try { resultSet.close(); } catch (Exception ex) { ; }
+      }
+      try { statement.close(); } catch (Exception ex) { ; }
+      
+      statement = dbConnection.prepareStatement(this.sqlString);
+
+      if (arguments.length > 0)
+      {
+         setArguments(arguments);
+      }
+   }
+   
+   /**
     * Sets the arguments for the database command
     * 
     * @param values
