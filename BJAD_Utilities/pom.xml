@@ -39,6 +39,11 @@
 					<goal>compile</goal>
 				</goals>
 			</plugin>
+		</plugins>
+	</build>
+
+	<reporting>
+		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
@@ -46,12 +51,20 @@
 				<configuration>
 					<configLocation>bjad_checkstyle.xml</configLocation>
 				</configuration>
-				<goals>
-					<goal>compile</goal>
-				</goals>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.7</version>
+				<configuration>
+					<formats>
+						<format>html</format>
+						<format>xml</format>
+					</formats>
+				</configuration>
 			</plugin>
 		</plugins>
-	</build>
+	</reporting>
 
 	<dependencies>
 		<dependency>
