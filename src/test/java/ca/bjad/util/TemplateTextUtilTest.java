@@ -60,10 +60,17 @@ public class TemplateTextUtilTest
    }
    
    @Test(expected=IOException.class)
-   public void testBadFile() throws Exception
+   public void testBadPage() throws Exception
    {
       new TemplateTextUtil("http://wakawaka.fake.error", "tpl:", "");
       fail("Should have failed to read from the crazy fake url");
+   }
+   
+   @Test(expected=IOException.class)
+   public void testBadFile() throws Exception
+   {
+	  new TemplateTextUtil("classpath:///TemplateText.missing.txt", "text", "replacement");
+	  fail("Should have failed to read from non-existant file");
    }
    
 }
