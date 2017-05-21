@@ -127,7 +127,8 @@ public final class ComboFinder
             // at the number. 
             if (total.compareTo(amountToFind) == 1)
             {
-               return null;
+               result = null;
+               break;
             }
          }
       }
