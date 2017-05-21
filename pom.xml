@@ -39,6 +39,14 @@
 					<goal>compile</goal>
 				</goals>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.17</version>
+				<configuration>
+					<configLocation>bjad_checkstyle.xml</configLocation>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

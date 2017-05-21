@@ -68,6 +68,8 @@ public class DatabaseWrapperTest
       {
          db.addToBatch(101, "jane");
          assertEquals("Batch job returns 2 affected", 2, db.executeNonQuery());
+         
+         db.newCommand("SELECT * FROM Person WHERE id = ?", 100);
       }
    }
    
@@ -116,6 +118,20 @@ public class DatabaseWrapperTest
             });
          
          assertEquals("At least two Person objects returned", true, results.size() >= 2);
+         db.newCommand("SELECT * FROM person");
+         results = db.executeQuery(new ResultSetMapper<Person>()
+         {
+            @Override
+            public Person processRow(ResultSet rs) throws SQLException
+            {
+               Person temp = new Person();
+               temp.id = rs.getInt("id");
+               temp.name = rs.getString("name");
+               return temp;
+            }
+         });
+      
+      assertEquals("At least two Person objects returned", true, results.size() >= 2);
       }
    }
    
